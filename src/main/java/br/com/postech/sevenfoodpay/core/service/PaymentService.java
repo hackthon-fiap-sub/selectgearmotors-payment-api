@@ -1,6 +1,8 @@
 package br.com.postech.sevenfoodpay.core.service;
 
 import br.com.postech.sevenfoodpay.application.api.v1.dto.request.PaymentRequest;
+import br.com.postech.sevenfoodpay.application.api.v1.dto.response.ClientLegalResponse;
+import br.com.postech.sevenfoodpay.application.api.v1.dto.response.ClientPhysicalResponse;
 import br.com.postech.sevenfoodpay.application.api.v1.dto.response.ClientResponse;
 import br.com.postech.sevenfoodpay.application.api.v1.dto.response.PaymentResponse;
 import br.com.postech.sevenfoodpay.application.api.v1.resources.PaymentResource;
@@ -71,9 +73,9 @@ public class PaymentService implements PaymentPort {
             log.info("PaymentCreateRequest: {}", paymentCreate);
             Payment createdPayment = paymentClient.create(paymentCreate);
 
-            String orderId = paymentCreateRequest.getOrderId();
+            String transactionId = paymentCreateRequest.getTransactionId();
             String clientId = paymentCreateRequest.getClientId();
-            Optional<PaymentResponse> paymentResponse = paymentResponse(createdPayment, clientId, orderId);
+            Optional<PaymentResponse> paymentResponse = paymentResponse(createdPayment, clientId, transactionId);
 
             if (!paymentResponse.isPresent()) {
                 throw new MercadoPagoException("Payment ntransactionDetails = nullot created");
@@ -97,10 +99,11 @@ public class PaymentService implements PaymentPort {
         return paymentById.block();
     }
 
-    private Optional<PaymentResponse> paymentResponse(Payment payment, String clientId, String orderId) {
+    private Optional<PaymentResponse> paymentResponse(Payment payment, String clientId, String transactionId) {
         try {
             PaymentDomain paymentDomain = PaymentDomain.builder()
                     .clientId(clientId)
+                    .transactionId(transactionId)
                     .paymentId(String.valueOf(payment.getId()))
                     .paymentStatus(payment.getStatus())
                     .paymentDetails(payment.getStatusDetail())
@@ -108,7 +111,7 @@ public class PaymentService implements PaymentPort {
                     .paymentAmount(payment.getTransactionAmount())
                     .qrCode(payment.getPointOfInteraction().getTransactionData().getQrCode())
                     .qrCodeBase64(payment.getPointOfInteraction().getTransactionData().getQrCodeBase64())
-                    .orderId(orderId)
+                    .orderId(transactionId)
                     .build();
 
             paymentRepositoryPort.save(paymentDomain);
@@ -127,9 +130,27 @@ public class PaymentService implements PaymentPort {
 
     private PaymentCreateDTO getPaymentPix(PaymentRequest paymentRequest) {
         String clientId = paymentRequest.clientId();
+        String socialId = "";
+        String personType = "";
 
         ClientResponse clientData = getClientData(clientId);
         log.info("Data: {}", clientData);
+
+        if (clientData == null) {
+            throw new MercadoPagoException("Client not found");
+        }
+
+        if (paymentRequest.personType().equals("LEGAL")) {
+            ClientLegalResponse clientLegalData = getClientLegalData(clientData.id());
+            log.info("ClientLegalData: {}", clientLegalData);
+            socialId = clientLegalData.companyId();
+            personType = "CNPJ";
+        } else if (paymentRequest.personType().equals("PHYSICAL")) {
+            ClientPhysicalResponse clientPhysicalData = getClientPhysicalData(clientData.id());
+            log.info("ClientPhysicalData: {}", clientPhysicalData);
+            socialId = clientPhysicalData.socialId();
+            personType = "CPF";
+        }
 
         String transactionId = paymentRequest.transactionId();
         TransactionResponse transactionResponse = getTransactionData(transactionId);
@@ -142,7 +163,7 @@ public class PaymentService implements PaymentPort {
         BigDecimal totalPrice = transactionResponse.getPrice();
         log.info("Total Price: {}", totalPrice);
 
-        PayerDTO payer = getPayerDTO(clientData);
+        PayerDTO payer = getPayerDTO(clientData, socialId, personType);
         PaymentCreateRequest paymentCreateRequest = PaymentCreateRequest.builder()
                 .transactionAmount(totalPrice)
                 .description("Payment for order " + paymentRequest.transactionId())
@@ -153,19 +174,18 @@ public class PaymentService implements PaymentPort {
 
         return PaymentCreateDTO.builder()
                 .paymentCreateRequest(paymentCreateRequest)
-                .orderId(paymentRequest.transactionId())
+                .transactionId(paymentRequest.transactionId())
                 .clientId(clientId)
                 .build();
     }
 
-    private PayerDTO getPayerDTO(ClientResponse clientData) {
+    private PayerDTO getPayerDTO(ClientResponse clientData, String socialId, String personType) {
         if (clientData == null) {
             throw new MercadoPagoException("Client not found");
         }
 
         PayerIdentificationDTO identificationDTO = new PayerIdentificationDTO();
-        identificationDTO.setType("CPF");
-        String socialId = clientData.socialId();
+        identificationDTO.setType(personType);
         identificationDTO.setNumber(socialId.replaceAll("[^0-9]", ""));
 
         PayerDTO payer = new PayerDTO();
@@ -203,6 +223,14 @@ public class PaymentService implements PaymentPort {
 
     private ClientResponse getClientData(String clientId) {
         return restClient.getClientByCode(clientId);
+    }
+
+    private ClientPhysicalResponse getClientPhysicalData(Long clientId) {
+        return restClient.getClientPhysicalsById(clientId);
+    }
+
+    private ClientLegalResponse getClientLegalData(Long clientId) {
+        return restClient.getClientLegalsById(clientId);
     }
 
     private TransactionResponse getTransactionData(String orderId) {

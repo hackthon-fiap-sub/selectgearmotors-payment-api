@@ -2,6 +2,7 @@ create table tb_payment (
     id bigserial not null,
     client_id varchar(255) not null,
     payment_id varchar(255) not null,
+    transaction_id varchar(255) not null,
     payment_status varchar(255) not null,
     payment_details varchar(255) not null,
     payment_date timestamp(6) not null,

@@ -19,6 +19,7 @@ public class PaymentMapper {
         log.info("PaymentId: {}", paymentId);
         return PaymentEntity.builder()
                 .clientId(paymentDomain.getClientId())
+                .transactionId(paymentDomain.getTransactionId())
                 .paymentId(paymentId)
                 .paymentStatus(paymentDomain.getPaymentStatus())
                 .paymentDetails(paymentDomain.getPaymentDetails())
@@ -34,6 +35,7 @@ public class PaymentMapper {
         return PaymentDomain.builder()
                 .id(paymentEntity.getId())
                 .paymentId(paymentEntity.getPaymentId())
+                .transactionId(paymentEntity.getTransactionId())
                 .clientId(paymentEntity.getClientId())
                 .paymentStatus(paymentEntity.getPaymentStatus())
                 .paymentDetails(paymentEntity.getPaymentDetails())

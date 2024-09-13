@@ -100,11 +100,7 @@ public class PaymentServiceTest {
 
         when(paymentRepositoryPort.save(getPaymentoDomain())).thenReturn(getPaymentoDomain());
 
-        ClientResponse clientResponse = new ClientResponse("76fb2f44-aaad-4ccd-a685-4b2dd33ef1c2",
-                "John Doe",
-                "Silva",
-                "CPF",
-                "04358243681", "fontestz@gmail.com");
+        ClientResponse clientResponse = new ClientResponse(1L, "Teste", "root@localhost", "(34) 9203-1932");
         //when(restClient.getUserById("76fb2f44-aaad-4ccd-a685-4b2dd33ef1c2")).thenReturn(clientResponse);
 
         List<OrderDTO> orderDTOList = new ArrayList<>();
@@ -114,7 +110,8 @@ public class PaymentServiceTest {
         PaymentRequest paymentRequest = new PaymentRequest(
                 BigDecimal.valueOf(0.01),
                 "Combo X Salada",
-                "76fb2f44-aaad-4ccd-a685-4b2dd33ef1c2"
+                "76fb2f44-aaad-4ccd-a685-4b2dd33ef1c2",
+                "PHYSICAL"
         );
 
         Optional<PaymentResponse> paymentDomainSaved = paymentService.processPayment(paymentRequest);

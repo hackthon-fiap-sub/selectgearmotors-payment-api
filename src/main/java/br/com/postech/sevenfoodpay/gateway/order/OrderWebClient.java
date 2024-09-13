@@ -20,4 +20,12 @@ public class OrderWebClient {
                 .bodyToMono(TransactionResponse.class)
                 .block();
     }
+
+    public void updateOrderStatus(String transactionId, String status) {
+        webClient.put()
+                .uri("/transactions/{transactionId}/status/{status}", transactionId, status)
+                .retrieve()
+                .bodyToMono(Void.class)
+                .block();
+    }
 }

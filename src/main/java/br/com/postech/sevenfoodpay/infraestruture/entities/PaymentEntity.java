@@ -32,6 +32,9 @@ public class PaymentEntity extends AuditDomain {
     @Column(name = "payment_id", nullable = false)
     private String paymentId;
 
+    @Column(name = "transaction_id", nullable = false)
+    private String transactionId;
+
     @Column(name = "payment_status", nullable = false)
     private String paymentStatus;
 
@@ -53,6 +56,9 @@ public class PaymentEntity extends AuditDomain {
     @Column(name = "orders", nullable = false)
     private String orders;
 
+    @Column(name = "notification_sent", nullable = false)
+    private boolean notificationSent;
+
     public void update(Long id, PaymentDomain paymentDomain) {
         this.id = id;
         this.clientId = paymentDomain.getClientId();
@@ -64,5 +70,7 @@ public class PaymentEntity extends AuditDomain {
         this.qrCode = paymentDomain.getQrCode();
         this.qrCodeBase64 = paymentDomain.getQrCodeBase64();
         this.orders = paymentDomain.getOrderId();
+        this.transactionId = paymentDomain.getTransactionId();
+        this.notificationSent = paymentDomain.isNotificationSent();
     }
 }

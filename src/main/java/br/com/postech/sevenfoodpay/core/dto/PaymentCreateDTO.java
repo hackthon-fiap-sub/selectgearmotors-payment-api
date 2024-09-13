@@ -14,6 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor
 public class PaymentCreateDTO implements Serializable {
     private PaymentCreateRequest paymentCreateRequest;
-    private String orderId;
+    private String transactionId;
     private String clientId;
 }

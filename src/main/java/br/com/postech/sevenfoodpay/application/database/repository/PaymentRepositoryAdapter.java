@@ -48,6 +48,24 @@ public class PaymentRepositoryAdapter implements PaymentRepositoryPort {
     }
 
     @Override
+    public PaymentDomain findByTransactionId(String transactionId) {
+        Optional<PaymentEntity> buClient = paymentRepository.findByTransactionId(transactionId);
+        if (buClient.isPresent()) {
+            return paymentMapper.toDomain(buClient.get());
+        }
+        return null;
+    }
+
+    @Override
+    public PaymentDomain findByPaymentId(String findByPaymentId) {
+        Optional<PaymentEntity> buClient = paymentRepository.findByPaymentId(findByPaymentId);
+        if (buClient.isPresent()) {
+            return paymentMapper.toDomain(buClient.get());
+        }
+        return null;
+    }
+
+    @Override
     public List<PaymentDomain> findAll() {
         List<PaymentEntity> allPayments = paymentRepository.findAll();
         return paymentMapper.map(allPayments);

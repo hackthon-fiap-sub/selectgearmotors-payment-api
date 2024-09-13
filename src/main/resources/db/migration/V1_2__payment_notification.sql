@@ -1,0 +1,1 @@
+ALTER TABLE tb_payment ADD notification_sent BOOLEAN NOT NULL DEFAULT FALSE;

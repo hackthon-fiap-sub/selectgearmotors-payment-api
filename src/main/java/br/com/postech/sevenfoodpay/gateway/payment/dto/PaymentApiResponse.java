@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaymentApiResponse {
+    private Long id;
     private String status;
     private String statusDetail;
     private String description;

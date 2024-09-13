@@ -12,12 +12,12 @@ docker rmi $(docker images -qa) -f
 ./mvnw clean install test jacoco:report
 sudo sysctl -w vm.max_map_count=262144
 
-docker build -t rogeriofontes/sevenfood-payment-api:v3 .
+docker build -t rogeriofontes/selectgearmotors-payment-api:v3 .
 docker login
-docker push rogeriofontes/sevenfood-payment-api:v3
+docker push rogeriofontes/selectgearmotors-payment-api:v3
 
-docker pull rogeriofontes/sevenfood-payment-api:v3
-docker run -p 9996:9996 sevenfood-payment-api:v3
+docker pull rogeriofontes/selectgearmotors-payment-api:v3
+docker run -p 8888:8888 selectgearmotors-payment-api:v3
 
 ====
 https://www.zaproxy.org/docs/docker/api-scan/

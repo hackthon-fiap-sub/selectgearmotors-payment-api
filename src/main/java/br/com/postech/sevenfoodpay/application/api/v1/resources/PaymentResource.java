@@ -87,6 +87,28 @@ public class PaymentResource {
             @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = PaymentResponse.class), mediaType = "application/json")}),
             @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())}),
             @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
+    @PutMapping("/{id}/update-status")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseEntity<PaymentResponse> findByIdAndChangeStatus(@PathVariable("id") String id) { //TODO - Remover quando for para Produção
+        PaymentDomain orderSaved = paymentRepositoryPort.findByPaymentId(id);
+        orderSaved.setPaymentStatus("approved");
+        paymentRepositoryPort.update(orderSaved.getId(), orderSaved);
+        if (orderSaved != null) {
+            PaymentResponse orderResponse = paymentApiMapper.toPaymentResponse(orderSaved);
+            return ResponseEntity.ok(orderResponse);
+        }
+
+        return ResponseEntity.noContent().build();
+    }
+
+    @Operation(
+            summary = "Retrieve a Order by Id",
+            description = "Get a Order object by specifying its id. The response is Association object with id, title, description and published status.",
+            tags = {"orders", "get"})
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", content = {@Content(schema = @Schema(implementation = PaymentResponse.class), mediaType = "application/json")}),
+            @ApiResponse(responseCode = "404", content = {@Content(schema = @Schema())}),
+            @ApiResponse(responseCode = "500", content = {@Content(schema = @Schema())})})
     @GetMapping("/payment/{id}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<PaymentApiResponse> findByPaymentId(@PathVariable("id") String id) {
