@@ -129,54 +129,61 @@ public class PaymentService implements PaymentPort {
     }
 
     private PaymentCreateDTO getPaymentPix(PaymentRequest paymentRequest) {
-        String clientId = paymentRequest.clientId();
-        String socialId = "";
-        String personType = "";
+        try {
+            String clientId = paymentRequest.clientId();
+            String socialId = "";
+            String personType = "";
 
-        ClientResponse clientData = getClientData(clientId);
-        log.info("Data: {}", clientData);
+            ClientResponse clientData = getClientData(clientId);
+            log.info("Data: {}", clientData);
 
-        if (clientData == null) {
-            throw new MercadoPagoException("Client not found");
+            if (clientData == null) {
+                throw new MercadoPagoException("Client not found");
+            }
+
+            if (paymentRequest.personType().equals("LEGAL")) {
+                ClientLegalResponse clientLegalData = getClientLegalData(clientData.id());
+                log.info("ClientLegalData: {}", clientLegalData);
+                socialId = clientLegalData.companyId();
+                personType = "CNPJ";
+            } else if (paymentRequest.personType().equals("PHYSICAL")) {
+                ClientPhysicalResponse clientPhysicalData = getClientPhysicalData(clientData.id());
+                log.info("ClientPhysicalData: {}", clientPhysicalData);
+                socialId = clientPhysicalData.socialId();
+                personType = "CPF";
+            }
+
+            String transactionId = paymentRequest.transactionId();
+            TransactionResponse transactionResponse = getTransactionData(transactionId);
+            log.info("TransactionResponse: {}", transactionResponse);
+
+            if (transactionResponse == null && transactionResponse.getPrice().equals(BigDecimal.ZERO)) {
+                throw new MercadoPagoException("Transaction not found");
+            }
+
+            BigDecimal totalPrice = transactionResponse.getPrice();
+            log.info("Total Price: {}", totalPrice);
+
+            PayerDTO payer = getPayerDTO(clientData, socialId, personType);
+            PaymentCreateRequest paymentCreateRequest = PaymentCreateRequest.builder()
+                    .transactionAmount(totalPrice)
+                    .description("Payment for order " + paymentRequest.transactionId())
+                    .paymentMethodId(PaymentMethod.PIX.getMethod())
+                    .payer(
+                            getPayer(payer))
+                    .build();
+
+            return PaymentCreateDTO.builder()
+                    .paymentCreateRequest(paymentCreateRequest)
+                    .transactionId(paymentRequest.transactionId())
+                    .clientId(clientId)
+                    .build();
+
+        } catch (Exception e) {
+            log.info("Error: {}", e.getMessage());
         }
 
-        if (paymentRequest.personType().equals("LEGAL")) {
-            ClientLegalResponse clientLegalData = getClientLegalData(clientData.id());
-            log.info("ClientLegalData: {}", clientLegalData);
-            socialId = clientLegalData.companyId();
-            personType = "CNPJ";
-        } else if (paymentRequest.personType().equals("PHYSICAL")) {
-            ClientPhysicalResponse clientPhysicalData = getClientPhysicalData(clientData.id());
-            log.info("ClientPhysicalData: {}", clientPhysicalData);
-            socialId = clientPhysicalData.socialId();
-            personType = "CPF";
-        }
-
-        String transactionId = paymentRequest.transactionId();
-        TransactionResponse transactionResponse = getTransactionData(transactionId);
-        log.info("TransactionResponse: {}", transactionResponse);
-
-        if (transactionResponse == null && transactionResponse.getPrice().equals(BigDecimal.ZERO)) {
-            throw new MercadoPagoException("Transaction not found");
-        }
-
-        BigDecimal totalPrice = transactionResponse.getPrice();
-        log.info("Total Price: {}", totalPrice);
-
-        PayerDTO payer = getPayerDTO(clientData, socialId, personType);
-        PaymentCreateRequest paymentCreateRequest = PaymentCreateRequest.builder()
-                .transactionAmount(totalPrice)
-                .description("Payment for order " + paymentRequest.transactionId())
-                .paymentMethodId(PaymentMethod.PIX.getMethod())
-                .payer(
-                        getPayer(payer))
-                .build();
-
-        return PaymentCreateDTO.builder()
-                .paymentCreateRequest(paymentCreateRequest)
-                .transactionId(paymentRequest.transactionId())
-                .clientId(clientId)
-                .build();
+        return null;
     }
 
     private PayerDTO getPayerDTO(ClientResponse clientData, String socialId, String personType) {

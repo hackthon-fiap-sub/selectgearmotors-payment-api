@@ -1,20 +1,35 @@
 package br.com.postech.sevenfoodpay.gateway.order;
 
 import br.com.postech.sevenfoodpay.gateway.dto.TransactionResponse;
+import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Component
 public class OrderWebClient {
 
-    private final WebClient webClient;
+    @Getter
+    @Value("${transaction.api.url}")
+    private String transactionAPiUrl;
+
+    private final WebClient.Builder webClientBuilder;
+
+    private WebClient webClient;
 
     public OrderWebClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:9934/api/v1").build();
+        this.webClientBuilder = webClientBuilder;
+    }
+
+    private WebClient getWebClient() {
+        if (this.webClient == null) {
+            this.webClient = webClientBuilder.baseUrl(getTransactionAPiUrl()).build();
+        }
+        return this.webClient;
     }
 
     public TransactionResponse getOrderById(String transactionId) {
-        return webClient.get()
+        return getWebClient().get()
                 .uri("/transactions/code/{transactionId}", transactionId)
                 .retrieve()
                 .bodyToMono(TransactionResponse.class)
@@ -22,10 +37,14 @@ public class OrderWebClient {
     }
 
     public void updateOrderStatus(String transactionId, String status) {
-        webClient.put()
+        getWebClient().put()
                 .uri("/transactions/{transactionId}/status/{status}", transactionId, status)
                 .retrieve()
                 .bodyToMono(Void.class)
                 .block();
+    }
+
+    private String getTransactionAPiUrl() {
+        return transactionAPiUrl;
     }
 }

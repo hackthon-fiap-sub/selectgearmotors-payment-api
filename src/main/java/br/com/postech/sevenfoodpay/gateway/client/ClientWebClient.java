@@ -3,7 +3,6 @@ package br.com.postech.sevenfoodpay.gateway.client;
 import br.com.postech.sevenfoodpay.application.api.v1.dto.response.ClientLegalResponse;
 import br.com.postech.sevenfoodpay.application.api.v1.dto.response.ClientPhysicalResponse;
 import br.com.postech.sevenfoodpay.application.api.v1.dto.response.ClientResponse;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,17 +11,25 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class ClientWebClient {
 
     @Value("${client.api.url}")
-    @Getter
     private String clientAPiUrl;
 
-    private final WebClient webClient;
+    private final WebClient.Builder webClientBuilder;
+
+    private WebClient webClient;
 
     public ClientWebClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl(getClientAPiUrl()).build();
+        this.webClientBuilder = webClientBuilder;
+    }
+
+    private WebClient getWebClient() {
+        if (this.webClient == null) {
+            this.webClient = webClientBuilder.baseUrl(getClientAPiUrl()).build();
+        }
+        return this.webClient;
     }
 
     public ClientResponse getClientByCode(String clientId) {
-        return webClient.get()
+        return getWebClient().get()
                 .uri("/clients/code/{clientId}", clientId)
                 .retrieve()
                 .bodyToMono(ClientResponse.class)
@@ -30,7 +37,7 @@ public class ClientWebClient {
     }
 
     public ClientPhysicalResponse getClientPhysicalsById(Long clientId) {
-        return webClient.get()
+        return getWebClient().get()
                 .uri("/client-physicals/client/{clientId}", clientId)
                 .retrieve()
                 .bodyToMono(ClientPhysicalResponse.class)
@@ -38,10 +45,14 @@ public class ClientWebClient {
     }
 
     public ClientLegalResponse getClientLegalsById(Long clientId) {
-        return webClient.get()
+        return getWebClient().get()
                 .uri("/client-legals/client/{clientId}", clientId)
                 .retrieve()
                 .bodyToMono(ClientLegalResponse.class)
                 .block();
+    }
+
+    private String getClientAPiUrl() {
+        return clientAPiUrl;
     }
 }
