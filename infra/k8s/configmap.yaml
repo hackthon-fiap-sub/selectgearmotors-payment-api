@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: selectgearmotors-payment-api-config
+  namespace: selectgearmotors-ns
 data:
   AWS_REGION: "us-east-1"
   DATABASE_NAME: "selectgearmotors-pay-db"
