@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: api-gateway-client-service
+  name: api-gateway-payment-service
   namespace: selectgearmotors-ns
 spec:
   type: LoadBalancer
@@ -10,4 +10,4 @@ spec:
       port: 8888
       targetPort: 8888
   selector:
-    app: selectgearmotors-client-api
+    app: selectgearmotors-payment-api
