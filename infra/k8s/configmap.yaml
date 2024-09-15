@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: selectgearmotors-payment-api-config
+data:
+  AWS_REGION: "us-east-1"
+  DATABASE_NAME: "selectgearmotors-pay-db"
+  DATABASE_PORT: "5432"
+  DATABASE_URL: "rds-selectgearmotors.cquezg8gsw7p.us-east-1.rds.amazonaws.com"
+  DATABASE_USERNAME: "postgres"
+  SWAGGER_API_URL: "https://192.168.100.31:9924/api"
+  ZIPKIN_URL: "http://54.82.102.109:9411/api/v2/spans"
+  CLIENT_API_URL: "http://192.168.100.31:9914/api/v1"
+  TRANSACTION_API_URL: "http://192.168.100.31:9934/api/v1"
+
+
+

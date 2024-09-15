@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: selectgearmotors-payment-api
+  namespace: selectgearmotors-ns
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: selectgearmotors-payment-api
+  template:
+    metadata:
+      labels:
+        app: selectgearmotors-payment-api
+    spec:
+      containers:
+        - name: selectgearmotors-api
+          image: rogeriofontes/selectgearmotors-payment-api:v4
+          ports:
+            - containerPort: 9924
+          envFrom:
+            - configMapRef:
+                name: selectgearmotors-payment-api-config
+            - secretRef:
+                name: selectgearmotors-payment-api-secrets
