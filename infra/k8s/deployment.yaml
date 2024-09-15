@@ -17,7 +17,7 @@ spec:
         - name: selectgearmotors-api
           image: rogeriofontes/selectgearmotors-payment-api:v4
           ports:
-            - containerPort: 9924
+            - containerPort: 8888
           envFrom:
             - configMapRef:
                 name: selectgearmotors-payment-api-config
