@@ -69,20 +69,24 @@ public class PaymentService implements PaymentPort {
             PaymentCreateDTO paymentCreateRequest =
                     getPaymentPix(paymentRequest);
 
-            PaymentCreateRequest paymentCreate = paymentCreateRequest.getPaymentCreateRequest();
-            log.info("PaymentCreateRequest: {}", paymentCreate);
-            Payment createdPayment = paymentClient.create(paymentCreate);
+           if (paymentCreateRequest != null) {
+               PaymentCreateRequest paymentCreate = paymentCreateRequest.getPaymentCreateRequest();
+               log.info("PaymentCreateRequest: {}", paymentCreate);
+               Payment createdPayment = paymentClient.create(paymentCreate);
 
-            String transactionId = paymentCreateRequest.getTransactionId();
-            String clientId = paymentCreateRequest.getClientId();
-            Optional<PaymentResponse> paymentResponse = paymentResponse(createdPayment, clientId, transactionId);
+               String transactionId = paymentCreateRequest.getTransactionId();
+               String clientId = paymentCreateRequest.getClientId();
+               Optional<PaymentResponse> paymentResponse = paymentResponse(createdPayment, clientId, transactionId);
 
-            if (!paymentResponse.isPresent()) {
-                throw new MercadoPagoException("Payment ntransactionDetails = nullot created");
-            }
+               if (!paymentResponse.isPresent()) {
+                   throw new MercadoPagoException("Payment ntransactionDetails = nullot created");
+               }
 
-            log.info("Payment created: {}", paymentResponse.get());
-            return paymentResponse;
+               log.info("Payment created: {}", paymentResponse.get());
+               return paymentResponse;
+           } else {
+                throw new MercadoPagoException("Payment not created");
+           }
         } catch (MPApiException apiException) {
             System.out.println(apiException.getApiResponse().getContent());
             throw new MercadoPagoException(apiException.getApiResponse().getContent());
