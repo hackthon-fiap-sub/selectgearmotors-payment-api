@@ -12,12 +12,12 @@ docker rmi $(docker images -qa) -f
 ./mvnw clean install test jacoco:report
 sudo sysctl -w vm.max_map_count=262144
 
-docker build -t rogeriofontes/selectgearmotors-payment-api:v5 .
+docker build -t rogeriofontes/selectgearmotors-payment-api:v6 .
 docker login
-docker push rogeriofontes/selectgearmotors-payment-api:v5
+docker push rogeriofontes/selectgearmotors-payment-api:v6
 
-docker pull rogeriofontes/selectgearmotors-payment-api:v3
-docker run -p 8888:8888 selectgearmotors-payment-api:v3
+docker pull rogeriofontes/selectgearmotors-payment-api:v6
+docker run -p 8888:8888 selectgearmotors-payment-api:v6
 
 ====
 https://www.zaproxy.org/docs/docker/api-scan/
