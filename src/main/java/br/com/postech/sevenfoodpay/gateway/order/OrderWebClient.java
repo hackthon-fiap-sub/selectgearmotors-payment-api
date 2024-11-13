@@ -1,5 +1,6 @@
 package br.com.postech.sevenfoodpay.gateway.order;
 
+import br.com.postech.sevenfoodpay.commons.Constants;
 import br.com.postech.sevenfoodpay.commons.filter.JwtRequestFilter;
 import br.com.postech.sevenfoodpay.gateway.dto.TransactionResponse;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +36,7 @@ public class OrderWebClient {
 
     public TransactionResponse getOrderById(String transactionId) {
         // Pega o token armazenado no filtro
-        String bearerToken = (String) request.getAttribute(JwtRequestFilter.BEARER_TOKEN_ATTRIBUTE);
+        String bearerToken = (String) request.getAttribute(Constants.BEARER_TOKEN_ATTRIBUTE);
         return getWebClient().get()
                 .uri("/transactions/code/{transactionId}", transactionId)
                 .headers(headers -> headers.setBearerAuth(bearerToken))
@@ -46,7 +47,7 @@ public class OrderWebClient {
 
     public void updateOrderStatus(String transactionId, String status) {
         // Pega o token armazenado no filtro
-        String bearerToken = (String) request.getAttribute(JwtRequestFilter.BEARER_TOKEN_ATTRIBUTE);
+        String bearerToken = (String) request.getAttribute(Constants.BEARER_TOKEN_ATTRIBUTE);
         getWebClient().put()
                 .uri("/transactions/{transactionId}/status/{status}", transactionId, status)
                 .headers(headers -> headers.setBearerAuth(bearerToken))

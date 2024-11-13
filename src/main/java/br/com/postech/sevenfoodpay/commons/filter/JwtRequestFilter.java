@@ -1,5 +1,6 @@
 package br.com.postech.sevenfoodpay.commons.filter;
 
+import br.com.postech.sevenfoodpay.commons.Constants;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
@@ -22,8 +23,6 @@ import java.util.List;
 @Component
 public class JwtRequestFilter extends OncePerRequestFilter {
 
-    public static final String BEARER_TOKEN_ATTRIBUTE = "BEARER_TOKEN";
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
@@ -41,7 +40,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwtToken = authorizationHeader.substring(7);
             // Remove "Bearer " para obter o token puro
-            httpRequest.setAttribute(BEARER_TOKEN_ATTRIBUTE, jwtToken);
+            httpRequest.setAttribute(Constants.BEARER_TOKEN_ATTRIBUTE, jwtToken);
         }
 
         if (jwtToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
