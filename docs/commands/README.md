@@ -12,9 +12,9 @@ docker rmi $(docker images -qa) -f
 ./mvnw clean install test jacoco:report
 sudo sysctl -w vm.max_map_count=262144
 
-docker build -t rogeriofontes/selectgearmotors-payment-api:v8 .
+docker build -t rogeriofontes/selectgearmotors-payment-api:v11 .
 docker login
-docker push rogeriofontes/selectgearmotors-payment-api:v8
+docker push rogeriofontes/selectgearmotors-payment-api:v11
 
 docker pull rogeriofontes/selectgearmotors-payment-api:v6
 docker run -p 8888:8888 selectgearmotors-payment-api:v6

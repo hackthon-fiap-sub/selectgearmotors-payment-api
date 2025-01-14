@@ -17,6 +17,54 @@
         <java.version>17</java.version>
         <sonar.organization>hackthon-fiap-sub</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <jacoco.version>0.8.12</jacoco.version>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.exclusions>
+            **/controller/debug/**/*,
+            **/src/test/**,
+            src/main/java/br/com/selectgearmotors/pay/application/media/AwsS3Service.java,
+            src/main/java/br/com/selectgearmotors/pay/commons/filter/JwtRequestFilter.java
+            src/main/java/br/com/selectgearmotors/pay/RunApplication.java,
+            src/main/java/br/com/selectgearmotors/pay/application/api/exception/**,
+            src/main/java/br/com/selectgearmotors/pay/application/api/dto/**,
+            src/main/java/br/com/selectgearmotors/pay/application/api/mapper/**,
+            src/main/java/br/com/selectgearmotors/pay/application/database/mapper/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/config/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/util/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/exception/**,
+            src/main/java/br/com/selectgearmotors/pay/core/utils/**,
+            src/main/java/br/com/selectgearmotors/pay/core/ports/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/Constants.java,
+            pom.xml
+        </sonar.exclusions>
+        <sonar.coverage.exclusions>
+            pom.xml,
+            **/controller/debug/**/*,
+            **/src/test/**,
+            src/main/java/br/com/selectgearmotors/pay/RunApplication.java,
+            src/main/java/br/com/selectgearmotors/pay/application/api/exception/**,
+            src/main/java/br/com/selectgearmotors/pay/application/api/dto/**,
+            src/main/java/br/com/selectgearmotors/pay/application/api/mapper/**,
+            src/main/java/br/com/selectgearmotors/pay/application/database/mapper/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/config/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/util/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/exception/**,
+            src/main/java/br/com/selectgearmotors/pay/core/utils/**,
+            src/main/java/br/com/selectgearmotors/pay/core/ports/**,
+            src/main/java/br/com/selectgearmotors/pay/commons/Constants.java
+        </sonar.coverage.exclusions>
+        <sonar.dependencyCheck.basePath>${project.basedir}/owasp-dependency-check-logs</sonar.dependencyCheck.basePath>
+        <sonar.dependencyCheck.htmlReportPath>${sonar.dependencyCheck.basePath}/dependency-check-report.html</sonar.dependencyCheck.htmlReportPath>
+        <sonar.dependencyCheck.jsonReportPath>${sonar.dependencyCheck.basePath}/dependency-check-report.json</sonar.dependencyCheck.jsonReportPath>
+        <sonar.dependencyCheck.summarize>true</sonar.dependencyCheck.summarize>
+        <sonar.sources>src/main/java</sonar.sources>
+        <sonar.test.inclusions>src/test/**/*</sonar.test.inclusions>
+        <sonar.tests>src/test/java</sonar.tests>
+        <spring-cloud.version>2023.0.3</spring-cloud.version>
+        <sonar.organization>hackthon-fiap-sub</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <dependencies>
         <dependency>
@@ -220,6 +268,72 @@
                         </path>
                     </annotationProcessorPaths>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.22.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <execution>
+                        <id>jacoco-initialize</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report-verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-site</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>jacoco-report-test</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.owasp</groupId>
+                <artifactId>dependency-check-maven</artifactId>
+                <version>6.5.3</version>
+                <configuration>
+                    <mavenSettingsProxyId>https-p</mavenSettingsProxyId>
+                    <outputDirectory>${sonar.dependencyCheck.basePath}</outputDirectory>
+                    <formats>
+                        <format>html</format>
+                        <format>json</format>
+                    </formats>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>generate-dependency-check-report</id>
+
+                        <goals>
+                            <goal>aggregate</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
